@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import GameHeader from "@/components/GameHeader";
 import PlayerDisplay from "@/components/PlayerDisplay";
 import CelebrationModal from "@/components/CelebrationModal";
+import Die from "@/components/Die"; // Import the Die component
 import { Button } from "@/components/ui/button";
 import { Play, RotateCw, Users } from "lucide-react";
 
@@ -14,6 +15,7 @@ type RoundPhase = "player1Roll" | "player2Roll" | "results";
 export default function Home() {
   const [player1Dice, setPlayer1Dice] = useState<[number, number]>([0, 0]);
   const [player2Dice, setPlayer2Dice] = useState<[number, number]>([0, 0]);
+  const [centralDice, setCentralDice] = useState<[number, number]>([0, 0]); // For large central dice
   const [player1Score, setPlayer1Score] = useState(0);
   const [player2Score, setPlayer2Score] = useState(0);
   const [player1Wins, setPlayer1Wins] = useState(0);
@@ -37,6 +39,8 @@ export default function Home() {
     const d1 = rollSingleDie();
     const d2 = rollSingleDie();
     const currentRollScore = d1 + d2;
+    
+    setCentralDice([d1, d2]); // Update central dice with the current roll
 
     if (activePlayer === "player1") {
       setPlayer1Dice([d1, d2]);
@@ -93,6 +97,7 @@ export default function Home() {
   const handleNextRound = useCallback(() => {
     setPlayer1Dice([0, 0]);
     setPlayer2Dice([0, 0]);
+    setCentralDice([0, 0]); // Reset central dice
     setPlayer1Score(0);
     setPlayer2Score(0);
     setActivePlayer("player1");
@@ -119,9 +124,9 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-background text-foreground font-body">
       <GameHeader />
 
-      <main className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-between mt-8 w-full max-w-6xl mx-auto px-4 gap-4 md:gap-8">
+      <main className="flex flex-col md:flex-row items-center md:items-start justify-center md:space-x-4 lg:space-x-8 mt-8 w-full max-w-6xl mx-auto px-2 sm:px-4">
         {/* Player 1 Display (Left Side) */}
-        <div className="w-full md:w-[280px] order-1 md:order-1">
+        <div className="w-full sm:w-3/4 md:w-[220px] lg:w-[240px] order-1 md:order-1 mb-4 md:mb-0">
           <PlayerDisplay
             playerName="Player 1"
             dice={player1Dice}
@@ -132,10 +137,16 @@ export default function Home() {
           />
         </div>
 
-        {/* Central Area for Status and Controls */}
-        <div className="flex flex-col items-center justify-start flex-grow py-4 md:py-8 space-y-6 md:space-y-8 min-w-[200px] md:min-w-[300px] order-2 md:order-2">
+        {/* Central Area for Dice, Status and Controls */}
+        <div className="flex flex-col items-center justify-start flex-grow py-4 md:py-8 space-y-6 md:space-y-8 order-2 md:order-2 w-full md:w-auto">
+          {/* Large Central Dice Display */}
+          <div className="flex space-x-3 sm:space-x-4">
+            <Die value={centralDice[0]} isRolling={rollingPlayer !== null} size="lg" />
+            <Die value={centralDice[1]} isRolling={rollingPlayer !== null} size="lg" />
+          </div>
+          
           <div className="text-center">
-            <p className="text-2xl font-semibold text-primary" aria-live="polite">
+            <p className="text-xl sm:text-2xl font-semibold text-primary" aria-live="polite">
               {statusMessage}
             </p>
           </div>
@@ -144,7 +155,7 @@ export default function Home() {
             <Button
               onClick={handleRoll}
               disabled={rollingPlayer !== null || roundPhase === "results"}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
               aria-label={getRollButtonText()}
             >
               <Play className="mr-2 h-5 w-5" /> {getRollButtonText()}
@@ -153,7 +164,7 @@ export default function Home() {
             {roundPhase === "results" && (
               <Button
                 onClick={handleNextRound}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
               >
                 <RotateCw className="mr-2 h-5 w-5" /> Next Round
               </Button>
@@ -162,7 +173,7 @@ export default function Home() {
         </div>
 
         {/* Player 2 Display (Right Side) */}
-        <div className="w-full md:w-[280px] order-3 md:order-3">
+        <div className="w-full sm:w-3/4 md:w-[220px] lg:w-[240px] order-3 md:order-3 mt-4 md:mt-0">
           <PlayerDisplay
             playerName="Player 2"
             dice={player2Dice}
@@ -178,7 +189,7 @@ export default function Home() {
         <Button
             onClick={handleNewGame}
             variant="outline"
-            className="border-primary text-primary hover:bg-primary/10 px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+            className="border-primary text-primary hover:bg-primary/10 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
           >
           <Users className="mr-2 h-5 w-5" /> New Game
         </Button>

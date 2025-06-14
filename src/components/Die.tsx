@@ -8,13 +8,14 @@ interface DieProps {
   value: number;
   isRolling?: boolean;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const Pip: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={cn("w-2.5 h-2.5 md:w-3 md:h-3 bg-foreground rounded-full", className)} />
+  <div className={cn("bg-foreground rounded-full", className)} />
 );
 
-const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
+const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = 'md' }) => {
   const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
@@ -24,24 +25,37 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
       }, 75);
       return () => clearInterval(interval);
     } else {
-      // When not rolling, displayValue should reflect the actual prop 'value'.
-      // If value is 0, it's for the initial '?' state. The render logic handles showing '?'.
-      // We set displayValue to 1 as a default for pip rendering if value is 0 (matches original behavior).
-      if (value === 0) {
-        setDisplayValue(1); 
-      } else {
-        // For any other value, clamp it to ensure it's between 1 and 6 for display.
-        setDisplayValue(Math.max(1, Math.min(6, value)));
-      }
+      setDisplayValue(Math.max(0, Math.min(6, value)));
     }
   }, [isRolling, value]);
-  
-  // If value is 0 (e.g. initial state), render a blank die or specific style
+
+  const sizeClasses = {
+    sm: {
+      container: "w-12 h-12 md:w-14 md:h-14",
+      pip: "w-2 h-2 md:w-2.5 md:h-2.5",
+      placeholderText: "text-2xl",
+    },
+    md: {
+      container: "w-16 h-16 md:w-20 md:h-20",
+      pip: "w-2.5 h-2.5 md:w-3 md:h-3",
+      placeholderText: "text-4xl",
+    },
+    lg: {
+      container: "w-24 h-24 md:w-32 md:h-32",
+      pip: "w-4 h-4 md:w-5 md:h-5",
+      placeholderText: "text-6xl",
+    },
+  };
+
+  const currentSize = sizeClasses[size];
+
   if (value === 0 && !isRolling) {
     return (
       <div
         className={cn(
-          "w-16 h-16 md:w-20 md:h-20 bg-card border-2 border-border rounded-lg shadow-md flex items-center justify-center text-muted-foreground",
+          "bg-card border-2 border-border rounded-lg shadow-md flex items-center justify-center text-muted-foreground",
+          currentSize.container,
+          currentSize.placeholderText,
           className
         )}
         aria-label="Empty die"
@@ -51,50 +65,55 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
     );
   }
 
+  // Ensure displayValue for pips is always 1-6, even if value prop is 0 (but not rolling)
+  const pipDisplayValue = (displayValue === 0 && !isRolling) ? 1 : Math.max(1, Math.min(6, displayValue));
+
+
   return (
     <div
       className={cn(
-        "w-16 h-16 md:w-20 md:h-20 bg-card border-2 border-border rounded-lg shadow-md p-2 grid grid-cols-3 grid-rows-3 gap-0.5",
+        "bg-card border-2 border-border rounded-lg shadow-md p-1 md:p-2 grid grid-cols-3 grid-rows-3 gap-0.5",
+        currentSize.container,
         isRolling ? "animate-pulse" : "",
         className
       )}
-      aria-label={`Die face showing ${displayValue}`}
+      aria-label={`Die face showing ${pipDisplayValue}`}
     >
       {/* Cell 1 (top-left) */}
-      <div className={cn("flex", (displayValue >= 2 && displayValue <= 6) ? "justify-start items-start" : "justify-center items-center")}>
-        {(displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
+      <div className={cn("flex", (pipDisplayValue >= 2 && pipDisplayValue <= 6) ? "justify-start items-start" : "justify-center items-center")}>
+        {(pipDisplayValue === 2 || pipDisplayValue === 3 || pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 2 (top-center) */}
       <div className={cn("flex justify-center items-start")}>
-        {displayValue === 6 && <Pip />}
+        {pipDisplayValue === 6 && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 3 (top-right) */}
-      <div className={cn("flex", (displayValue === 4 || displayValue === 5 || displayValue === 6) ? "justify-end items-start" : "justify-center items-center")}>
-        {(displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
+      <div className={cn("flex", (pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) ? "justify-end items-start" : "justify-center items-center")}>
+        {(pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 4 (middle-left) */}
       <div className={cn("flex justify-start items-center")}>
-        {(displayValue === 6) && <Pip />}
+        {(pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 5 (center) */}
       <div className={cn("flex justify-center items-center")}>
-        {(displayValue === 1 || displayValue === 3 || displayValue === 5) && <Pip />}
+        {(pipDisplayValue === 1 || pipDisplayValue === 3 || pipDisplayValue === 5) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 6 (middle-right) */}
       <div className={cn("flex justify-end items-center")}>
-        {(displayValue === 6) && <Pip />}
+        {(pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 7 (bottom-left) */}
-      <div className={cn("flex", (displayValue === 4 || displayValue === 5 || displayValue === 6) ? "justify-start items-end" : "justify-center items-center")}>
-        {(displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
+      <div className={cn("flex", (pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) ? "justify-start items-end" : "justify-center items-center")}>
+        {(pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 8 (bottom-center) */}
       <div className={cn("flex justify-center items-end")}>
-         {displayValue === 6 && <Pip />}
+         {pipDisplayValue === 6 && <Pip className={currentSize.pip} />}
       </div>
       {/* Cell 9 (bottom-right) */}
-      <div className={cn("flex", (displayValue >= 2 && displayValue <= 6) ? "justify-end items-end" : "justify-center items-center")}>
-        {(displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
+      <div className={cn("flex", (pipDisplayValue >= 2 && pipDisplayValue <= 6) ? "justify-end items-end" : "justify-center items-center")}>
+        {(pipDisplayValue === 2 || pipDisplayValue === 3 || pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
       </div>
     </div>
   );
