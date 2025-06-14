@@ -25,7 +25,12 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
       }, 75);
       return () => clearInterval(interval);
     } else {
-      setDisplayValue(Math.max(0, Math.min(6, value)));
+      // Ensure value is between 1 and 6 for display, or 0 if specifically passed as 0 and not rolling.
+      if (value === 0) {
+        setDisplayValue(0);
+      } else {
+        setDisplayValue(Math.max(1, Math.min(6, value)));
+      }
     }
   }, [isRolling, value]);
 
@@ -49,7 +54,8 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
 
   const currentSize = sizeClasses[size];
 
-  if (value === 0 && !isRolling) {
+  // Handles the case where the die should be shown as empty (e.g., before the first roll)
+  if (displayValue === 0 && !isRolling) {
     return (
       <div
         className={cn(
@@ -65,8 +71,8 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
     );
   }
 
-  // Ensure displayValue for pips is always 1-6, even if value prop is 0 (but not rolling)
-  const pipDisplayValue = (displayValue === 0 && !isRolling) ? 1 : Math.max(1, Math.min(6, displayValue));
+  // Ensure pipDisplayValue is always 1-6 for rendering pips, even if displayValue during rolling is 0 for a moment.
+  const pipDisplayValue = Math.max(1, Math.min(6, displayValue));
 
 
   return (
@@ -74,7 +80,7 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
       className={cn(
         "bg-card border-2 border-border rounded-lg shadow-md p-1 md:p-2 grid grid-cols-3 grid-rows-3 gap-0.5",
         currentSize.container,
-        isRolling ? "animate-pulse" : "",
+        isRolling ? "animate-die-roll-shake" : "",
         className
       )}
       aria-label={`Die face showing ${pipDisplayValue}`}
