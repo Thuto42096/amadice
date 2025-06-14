@@ -24,8 +24,15 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
       }, 75);
       return () => clearInterval(interval);
     } else {
-      // Ensure final value is set once rolling stops, even if it's 0 (blank)
-      setDisplayValue(value === 0 ? 1 : value); // Default to 1 if value is 0 and not rolling
+      // When not rolling, displayValue should reflect the actual prop 'value'.
+      // If value is 0, it's for the initial '?' state. The render logic handles showing '?'.
+      // We set displayValue to 1 as a default for pip rendering if value is 0 (matches original behavior).
+      if (value === 0) {
+        setDisplayValue(1); 
+      } else {
+        // For any other value, clamp it to ensure it's between 1 and 6 for display.
+        setDisplayValue(Math.max(1, Math.min(6, value)));
+      }
     }
   }, [isRolling, value]);
   
@@ -44,17 +51,6 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
     );
   }
 
-  const pipPositions: { [key: number]: string[] } = {
-    1: ["justify-center items-center"],
-    2: ["justify-start items-start", "justify-end items-end"],
-    3: ["justify-start items-start", "justify-center items-center", "justify-end items-end"],
-    4: ["justify-start items-start", "justify-end items-start", "justify-start items-end", "justify-end items-end"],
-    5: ["justify-start items-start", "justify-end items-start", "justify-center items-center", "justify-start items-end", "justify-end items-end"],
-    6: ["justify-start items-start", "justify-end items-start", "justify-start items-center", "justify-end items-center", "justify-start items-end", "justify-end items-end"],
-  };
-
-  const currentPips = pipPositions[displayValue as keyof typeof pipPositions] || [];
-
   return (
     <div
       className={cn(
@@ -64,10 +60,8 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
       )}
       aria-label={`Die face showing ${displayValue}`}
     >
-      {/* Simplified pip rendering based on common patterns */}
-      {/* This structure creates 9 cells. We will place pips based on displayValue */}
       {/* Cell 1 (top-left) */}
-      <div className={cn("flex", currentPips.includes("justify-start items-start") || (displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) ? "justify-start items-start" : "justify-center items-center")}>
+      <div className={cn("flex", (displayValue >= 2 && displayValue <= 6) ? "justify-start items-start" : "justify-center items-center")}>
         {(displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
       </div>
       {/* Cell 2 (top-center) */}
@@ -99,7 +93,7 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className }) => {
          {displayValue === 6 && <Pip />}
       </div>
       {/* Cell 9 (bottom-right) */}
-      <div className={cn("flex", (displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) ? "justify-end items-end" : "justify-center items-center")}>
+      <div className={cn("flex", (displayValue >= 2 && displayValue <= 6) ? "justify-end items-end" : "justify-center items-center")}>
         {(displayValue === 2 || displayValue === 3 || displayValue === 4 || displayValue === 5 || displayValue === 6) && <Pip />}
       </div>
     </div>
