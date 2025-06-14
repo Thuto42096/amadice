@@ -45,14 +45,12 @@ export default function Home() {
       setPlayer2Dice([d1, d2]);
       setPlayer2Score(currentRollScore);
     }
-
-    // Animation and turn transition logic moved to useEffect based on rollingPlayer
   }, [activePlayer, rollingPlayer]);
   
   useEffect(() => {
     if (rollingPlayer) {
       const timer = setTimeout(() => {
-        setRollingPlayer(null); // Stop animation
+        setRollingPlayer(null); 
 
         if (rollingPlayer === "player1") {
           setRoundPhase("player2Roll");
@@ -61,9 +59,8 @@ export default function Home() {
         } else if (rollingPlayer === "player2") {
           setRoundPhase("results");
           setActivePlayer(null);
-          // Determine winner - This logic is now inside the useEffect that depends on player1Score and player2Score when roundPhase is 'results'
         }
-      }, 1000); // 1 second rolling animation
+      }, 1000); 
       return () => clearTimeout(timer);
     }
   }, [rollingPlayer]);
@@ -71,7 +68,6 @@ export default function Home() {
 
   useEffect(() => {
     if (roundPhase === "results" && !rollingPlayer) {
-       // This ensures scores are updated before comparison
       if (player1Score > player2Score) {
         setStatusMessage("Player 1 Wins the Round!");
         setPlayer1Wins((prev) => prev + 1);
@@ -123,54 +119,66 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-background text-foreground font-body">
       <GameHeader />
 
-      <main className="flex flex-col md:flex-row items-start justify-center gap-8 mt-8 w-full max-w-4xl">
-        <PlayerDisplay
-          playerName="Player 1"
-          dice={player1Dice}
-          currentScore={player1Score}
-          totalWins={player1Wins}
-          isCurrentPlayer={activePlayer === "player1"}
-          isRolling={rollingPlayer === "player1"}
-        />
-        <PlayerDisplay
-          playerName="Player 2"
-          dice={player2Dice}
-          currentScore={player2Score}
-          totalWins={player2Wins}
-          isCurrentPlayer={activePlayer === "player2"}
-          isRolling={rollingPlayer === "player2"}
-        />
+      <main className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-between mt-8 w-full max-w-6xl mx-auto px-4 gap-4 md:gap-8">
+        {/* Player 1 Display (Left Side) */}
+        <div className="w-full md:w-[280px] order-1 md:order-1">
+          <PlayerDisplay
+            playerName="Player 1"
+            dice={player1Dice}
+            currentScore={player1Score}
+            totalWins={player1Wins}
+            isCurrentPlayer={activePlayer === "player1"}
+            isRolling={rollingPlayer === "player1"}
+          />
+        </div>
+
+        {/* Central Area for Status and Controls */}
+        <div className="flex flex-col items-center justify-start flex-grow py-4 md:py-8 space-y-6 md:space-y-8 min-w-[200px] md:min-w-[300px] order-2 md:order-2">
+          <div className="text-center">
+            <p className="text-2xl font-semibold text-primary" aria-live="polite">
+              {statusMessage}
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <Button
+              onClick={handleRoll}
+              disabled={rollingPlayer !== null || roundPhase === "results"}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+              aria-label={getRollButtonText()}
+            >
+              <Play className="mr-2 h-5 w-5" /> {getRollButtonText()}
+            </Button>
+
+            {roundPhase === "results" && (
+              <Button
+                onClick={handleNextRound}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+              >
+                <RotateCw className="mr-2 h-5 w-5" /> Next Round
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Player 2 Display (Right Side) */}
+        <div className="w-full md:w-[280px] order-3 md:order-3">
+          <PlayerDisplay
+            playerName="Player 2"
+            dice={player2Dice}
+            currentScore={player2Score}
+            totalWins={player2Wins}
+            isCurrentPlayer={activePlayer === "player2"}
+            isRolling={rollingPlayer === "player2"}
+          />
+        </div>
       </main>
 
-      <div className="mt-8 text-center">
-        <p className="text-2xl font-semibold text-primary" aria-live="polite">
-          {statusMessage}
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-        <Button
-          onClick={handleRoll}
-          disabled={rollingPlayer !== null || roundPhase === "results"}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
-          aria-label={getRollButtonText()}
-        >
-          <Play className="mr-2 h-5 w-5" /> {getRollButtonText()}
-        </Button>
-
-        {roundPhase === "results" && (
-          <Button
-            onClick={handleNextRound}
-            className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
-          >
-            <RotateCw className="mr-2 h-5 w-5" /> Next Round
-          </Button>
-        )}
-        
+      <div className="mt-8 flex justify-center">
         <Button
             onClick={handleNewGame}
             variant="outline"
-            className="border-primary text-primary hover:bg-primary/10 px-8 py-6 text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
+            className="border-primary text-primary hover:bg-primary/10 px-6 py-4 md:px-8 md:py-6 text-base md:text-lg shadow-md transition-transform hover:scale-105 w-full sm:w-auto"
           >
           <Users className="mr-2 h-5 w-5" /> New Game
         </Button>

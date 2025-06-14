@@ -27,7 +27,7 @@ const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   return (
     <Card 
       className={cn(
-        "w-full md:w-80 shadow-lg transition-all duration-300 transform",
+        "w-full shadow-lg transition-all duration-300 transform", // Adjusted width to w-full, parent will control size
         isCurrentPlayer ? "border-accent ring-2 ring-accent scale-105" : "border-primary",
         "bg-card"
       )}
