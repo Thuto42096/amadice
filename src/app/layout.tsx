@@ -1,9 +1,9 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"; // Added Toaster
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Dice Dueler', // Changed title
+  title: 'AMA Dice', // Changed title
   description: 'An interactive dice rolling game.',
 };
 

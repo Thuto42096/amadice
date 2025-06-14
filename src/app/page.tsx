@@ -203,7 +203,7 @@ export default function Home() {
       />
       
       <footer className="mt-12 text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} Dice Dueler. Roll with fun!</p>
+        <p>&copy; {new Date().getFullYear()} AMA Dice. Roll with fun!</p>
       </footer>
     </div>
   );
