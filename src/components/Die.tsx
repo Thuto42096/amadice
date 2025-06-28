@@ -71,9 +71,10 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
     );
   }
 
-  // Ensure pipDisplayValue is always 1-6 for rendering pips, even if displayValue during rolling is 0 for a moment.
+  // Ensure pipDisplayValue is always 1-6 for rendering pips.
   const pipDisplayValue = Math.max(1, Math.min(6, displayValue));
-
+  
+  const show = (v: number[]) => v.includes(pipDisplayValue);
 
   return (
     <div
@@ -85,41 +86,33 @@ const Die: React.FC<DieProps> = ({ value, isRolling = false, className, size = '
       )}
       aria-label={`Die face showing ${pipDisplayValue}`}
     >
-      {/* Cell 1 (top-left) */}
-      <div className={cn("flex", (pipDisplayValue >= 2 && pipDisplayValue <= 6) ? "justify-start items-start" : "justify-center items-center")}>
-        {(pipDisplayValue === 2 || pipDisplayValue === 3 || pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
+      {/* Top row */}
+      <div className="flex justify-start items-start">
+        {show([2, 3, 4, 5, 6]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 2 (top-center) */}
-      <div className={cn("flex justify-center items-start")}>
-        {pipDisplayValue === 6 && <Pip className={currentSize.pip} />}
+      <div className="flex justify-center items-start"></div>
+      <div className="flex justify-end items-start">
+        {show([4, 5, 6]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 3 (top-right) */}
-      <div className={cn("flex", (pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) ? "justify-end items-start" : "justify-center items-center")}>
-        {(pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
+
+      {/* Middle row */}
+      <div className="flex justify-start items-center">
+        {show([6]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 4 (middle-left) */}
-      <div className={cn("flex justify-start items-center")}>
-        {(pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
+      <div className="flex justify-center items-center">
+        {show([1, 3, 5]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 5 (center) */}
-      <div className={cn("flex justify-center items-center")}>
-        {(pipDisplayValue === 1 || pipDisplayValue === 3 || pipDisplayValue === 5) && <Pip className={currentSize.pip} />}
+      <div className="flex justify-end items-center">
+        {show([6]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 6 (middle-right) */}
-      <div className={cn("flex justify-end items-center")}>
-        {(pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
+
+      {/* Bottom row */}
+      <div className="flex justify-start items-end">
+        {show([4, 5, 6]) && <Pip className={currentSize.pip} />}
       </div>
-      {/* Cell 7 (bottom-left) */}
-      <div className={cn("flex", (pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) ? "justify-start items-end" : "justify-center items-center")}>
-        {(pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
-      </div>
-      {/* Cell 8 (bottom-center) */}
-      <div className={cn("flex justify-center items-end")}>
-         {pipDisplayValue === 6 && <Pip className={currentSize.pip} />}
-      </div>
-      {/* Cell 9 (bottom-right) */}
-      <div className={cn("flex", (pipDisplayValue >= 2 && pipDisplayValue <= 6) ? "justify-end items-end" : "justify-center items-center")}>
-        {(pipDisplayValue === 2 || pipDisplayValue === 3 || pipDisplayValue === 4 || pipDisplayValue === 5 || pipDisplayValue === 6) && <Pip className={currentSize.pip} />}
+      <div className="flex justify-center items-end"></div>
+      <div className="flex justify-end items-end">
+        {show([2, 3, 4, 5, 6]) && <Pip className={currentSize.pip} />}
       </div>
     </div>
   );
